@@ -17,6 +17,7 @@ max_humid = rangesData['max_humid']
 min_humid = rangesData['min_humid']
 
 #get current time
+#testing
 currentDT = datetime.datetime.now()
     
 
