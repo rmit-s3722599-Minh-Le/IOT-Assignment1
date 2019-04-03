@@ -1,6 +1,7 @@
 #imports
 import json
 from sense_hat import SenseHat
+import datetime
 
 #readfile
 with open('config.json', 'r') as myfile:
@@ -15,6 +16,9 @@ min_temp = rangesData['min_temp']
 max_humid = rangesData['max_humid']
 min_humid = rangesData['min_humid']
 
+#get current time
+currentDT = datetime.datetime.now()
+    
 
 #sensehat
 
