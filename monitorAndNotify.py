@@ -41,17 +41,17 @@ with con:
     cur.execute("DROP TABLE IF EXISTS TEMP_HUMID_data")
     cur.execute("CREATE TABLE IF NOT EXIST TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC)")
 
-def logData (temp):	
+def logData (temp, humid):	
     conn=sqlite3.connect(dbName)
     curs=conn.cursor()
-    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?))", (temp,))
+    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?))", (temp,), (humid,))
     conn.commit()
     conn.close()
 
 def addTemp():	
     if temp is not None:
         temp = round(temp, 1)
-        logData (temp)
+        logData (temp, temp_humid)
 
 
 
