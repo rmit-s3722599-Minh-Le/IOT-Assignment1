@@ -2,6 +2,11 @@
 import json
 from sense_hat import SenseHat
 import datetime
+import requests
+import json
+import sqlite3
+import sys
+
 
 #readfile
 with open('config.json', 'r') as myfile:
@@ -17,9 +22,8 @@ max_humid = rangesData['max_humid']
 min_humid = rangesData['min_humid']
 
 #get current time
-#testing
 currentDT = datetime.datetime.now()
-    
+
 
 #sensehat
 
@@ -30,3 +34,55 @@ sense.clear()
 temp  = sense.get_temperature()
 temp_humid = sense.get_temperature_from_humidity()
 
+dbName = 'THS.db'
+con = sqlite3.connect(dbName)
+with con: 
+    cur = con.cursor() 
+    cur.execute("DROP TABLE IF EXISTS TEMP_HUMID_data")
+    cur.execute("CREATE TABLE IF NOT EXIST TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC)")
+
+def logData (temp):	
+    conn=sqlite3.connect(dbName)
+    curs=conn.cursor()
+    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?))", (temp,))
+    conn.commit()
+    conn.close()
+
+def addTemp():	
+    if temp is not None:
+        temp = round(temp, 1)
+        logData (temp)
+
+
+
+ACCESS_TOKEN="o.90FuRwpaeFwBa2NaRKfshwjFhbi98emW"
+
+def send_notification_via_pushbullet(title, body):
+    """ Sending notification via pushbullet.
+        Args:
+            title (str) : title of text.
+            body (str) : Body of text.
+    """
+    data_send = {"type": "note", "title": title, "body": body}
+ 
+    resp = requests.post('https://api.pushbullet.com/v2/pushes', data=json.dumps(data_send),
+                         headers={'Authorization': 'Bearer ' + ACCESS_TOKEN, 
+                         'Content-Type': 'application/json'})
+    if resp.status_code != 200:
+        raise Exception('Something wrong')
+    else:
+        print('complete sending')
+
+def sendNotif():
+    if(temp > max_temp or temp < min_temp):
+        send_notification_via_pushbullet("Temperature has exceeded", temp + "Degrees Celcius")
+    if(temp_humid > max_humid or temp < min_humid):
+        send_notification_via_pushbullet("Humidity has exceeded", temp_humid + "Degrees Celcius")    
+
+#main function
+def main():
+    addTemp()
+    sendNotif()
+
+#Execute
+main()
