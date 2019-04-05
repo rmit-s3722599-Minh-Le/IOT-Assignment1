@@ -1,3 +1,4 @@
+#!usr/bin/python3
 #imports
 import json
 from sense_hat import SenseHat
@@ -35,14 +36,13 @@ temp  = sense.get_temperature()
 temp_humid = sense.get_temperature_from_humidity()
 
 dbName = 'THS.db'
-con = sqlite3.connect(dbName)
-with con: 
-    cur = con.cursor() 
+conn = sqlite3.connect(dbName)
+with conn: 
+    cur = conn.cursor() 
     cur.execute("DROP TABLE IF EXISTS TEMP_HUMID_data")
     cur.execute("CREATE TABLE IF NOT EXIST TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC)")
 
 def logData (temp, humid):	
-    conn=sqlite3.connect(dbName)
     curs=conn.cursor()
     curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?))", (temp,), (humid,))
     conn.commit()
@@ -53,7 +53,11 @@ def addTemp():
         temp = round(temp, 1)
         logData (temp, temp_humid)
 
-
+def select():
+     curs=conn.cursor()
+    for row in curs.execute("SELECT * FROM TEMP_HUMID_data"):
+        print (row)
+    conn.close()
 
 ACCESS_TOKEN="o.90FuRwpaeFwBa2NaRKfshwjFhbi98emW"
 
