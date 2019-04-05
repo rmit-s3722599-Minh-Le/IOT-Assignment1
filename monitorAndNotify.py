@@ -54,7 +54,7 @@ def addTemp():
         logData (temp, temp_humid)
 
 def select():
-     curs=conn.cursor()
+    curs=conn.cursor()
     for row in curs.execute("SELECT * FROM TEMP_HUMID_data"):
         print (row)
     conn.close()
