@@ -40,11 +40,11 @@ conn = sqlite3.connect(dbName)
 with conn: 
     cur = conn.cursor() 
     cur.execute("DROP TABLE IF EXISTS TEMP_HUMID_data")
-    cur.execute("CREATE TABLE IF NOT EXIST TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC)")
+    cur.execute("CREATE TABLE IF NOT EXIST TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC, humid NUMERIC, notif DATETIME)")
 
 def logData (temp, humid):	
     curs=conn.cursor()
-    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?))", (temp,), (humid,))
+    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?))", (temp, ), (humid,))
     conn.commit()
     conn.close()
 
