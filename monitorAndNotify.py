@@ -1,4 +1,4 @@
-#!usr/bin/python3
+#!usr/bin/env python3
 #imports
 import json
 from sense_hat import SenseHat
@@ -7,7 +7,10 @@ import requests
 import json
 import sqlite3
 import sys
+from datetime import date
+from datetime import timedelta
 
+import os
 
 #readfile
 with open('config.json', 'r') as myfile:
@@ -32,32 +35,17 @@ sense = SenseHat()
 sense.clear()
 
 #gets temp and humid
-temp  = sense.get_temperature()
-temp_humid = sense.get_temperature_from_humidity()
+temp  = round(sense.get_temperature(),1)
+temp_humid = round(sense.get_humidity(),1)
 
 dbName = 'THS.db'
 conn = sqlite3.connect(dbName)
+
+
+
 with conn: 
     cur = conn.cursor() 
-    cur.execute("DROP TABLE IF EXISTS TEMP_HUMID_data")
-    cur.execute("CREATE TABLE IF NOT EXIST TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC, humid NUMERIC, notif DATETIME)")
-
-def logData (temp, humid):	
-    curs=conn.cursor()
-    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?))", (temp, ), (humid,))
-    conn.commit()
-    conn.close()
-
-def addTemp():	
-    if temp is not None:
-        temp = round(temp, 1)
-        logData (temp, temp_humid)
-
-def select():
-    curs=conn.cursor()
-    for row in curs.execute("SELECT * FROM TEMP_HUMID_data"):
-        print (row)
-    conn.close()
+    cur.execute("CREATE TABLE IF NOT EXISTS TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC, humid NUMERIC, notif DATETIME)")
 
 ACCESS_TOKEN="o.90FuRwpaeFwBa2NaRKfshwjFhbi98emW"
 
@@ -77,16 +65,69 @@ def send_notification_via_pushbullet(title, body):
     else:
         print('complete sending')
 
-def sendNotif():
-    if(temp > max_temp or temp < min_temp):
-        send_notification_via_pushbullet("Temperature has exceeded", temp + "Degrees Celcius")
-    if(temp_humid > max_humid or temp < min_humid):
-        send_notification_via_pushbullet("Humidity has exceeded", temp_humid + "Degrees Celcius")    
+
+
+def logData (temp, humid, notif):	
+    curs=conn.cursor()
+    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?), (?), (?))", (temp,humid,notif ))
+    conn.commit()
+    conn.close()
+def getNotif ():
+    curs= conn.cursor()
+    result = curs.execute("SELECT * FROM TEMP_HUMID_data ORDER BY timestamp DESC LIMIT 1").fetchone()
+    try:
+        pNotif = result[3]
+    except:
+        pNotif = date.today() - timedelta(days=1)
+        
+    return pNotif
+
+
+
+
+def blah():
+    notif = getNotif()
+    if temp > min_temp and temp < max_temp : 
+        if temp_humid > min_humid and temp_humid < max_humid :
+            logData(temp, temp_humid, notif)
+        else :
+            checkNotif(temp, temp_humid, notif)
+    else :
+        if temp_humid > min_humid and temp_humid < max_humid:
+            checkNotif(temp, temp_humid, notif)
+
+        else :
+            checkNotif(temp, temp_humid, notif)
+
+
+def checkNotif (temp, humid, notif):
+    if notif != date.today().strftime("%d/%m/%Y"):
+            sendNotif(temp, temp_humid)
+            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"))
+    else : 
+            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"))
+
+
+
+def select():
+    conn = sqlite3.connect(dbName)
+    curs=conn.cursor()
+    for row in curs.execute("SELECT * FROM TEMP_HUMID_data"):
+        print (row)
+    conn.close()
+
+
+def sendNotif(temp, temp_humid):
+    # if(temp > max_temp or temp < min_temp):
+    #     send_notification_via_pushbullet("Temperature has exceeded", temp + "Degrees Celcius")
+    # if(temp_humid > max_humid or temp_humid < min_humid):
+    #     send_notification_via_pushbullet("Humidity has exceeded", temp_humid + "Degrees Celcius")
+    if(temp_humid > max_humid or temp < min_humid or temp_humid > max_humid or temp_humid < min_humid):
+        send_notification_via_pushbullet("Alert", "temp:" + str(temp) + " and humid: " + str(temp_humid) + str(getNotif()) )       
 
 #main function
 def main():
-    addTemp()
-    sendNotif()
+    blah()
 
 #Execute
 main()
