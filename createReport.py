@@ -98,8 +98,10 @@ class tempCompare:
         if(min_temp_breach = False and max_temp_breach = False and min_humid_breach = False and max_humid_breach = True):
             resultString = "BAD: {} %% above maximum humidity".format(aboveHumid)
         if(min_temp_breach = False and max_temp_breach = False and min_humid_breach = False and max_humid_breach = False):
-            resultString = "Ok"
+            resultString = "OK"
         return resultString
+
+
     def reset(self):
         self.max_temp_breach = False
         self.min_temp_breach = False
