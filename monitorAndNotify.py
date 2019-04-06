@@ -45,7 +45,7 @@ conn = sqlite3.connect(dbName)
 
 with conn: 
     cur = conn.cursor() 
-    cur.execute("CREATE TABLE IF NOT EXISTS TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC, humid NUMERIC, notif DATETIME)")
+    cur.execute("CREATE TABLE IF NOT EXISTS TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC, humid NUMERIC, notif DATETIME, day DATETIME)")
 
 ACCESS_TOKEN="o.90FuRwpaeFwBa2NaRKfshwjFhbi98emW"
 
@@ -67,9 +67,9 @@ def send_notification_via_pushbullet(title, body):
 
 
 
-def logData (temp, humid, notif):	
+def logData (temp, humid, notif, day):	
     curs=conn.cursor()
-    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?), (?), (?))", (temp,humid,notif ))
+    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?), (?), (?), (?))", (temp,humid,notif,day))
     conn.commit()
     conn.close()
 def getNotif ():
@@ -87,23 +87,24 @@ def getNotif ():
 
 def blah():
     notif = getNotif()
+    report = getReport()
     if temp > min_temp and temp < max_temp : 
         if temp_humid > min_humid and temp_humid < max_humid :
-            logData(temp, temp_humid, notif)
+            logData(temp, temp_humid, notif, date.today())
         else :
-            checkNotif(temp, temp_humid, notif)
+            checkNotif(temp, temp_humid, notif, date.today())
     else :
         if temp_humid > min_humid and temp_humid < max_humid:
-            checkNotif(temp, temp_humid, notif)
+            checkNotif(temp, temp_humid, notif, date.today())
 
         else :
-            checkNotif(temp, temp_humid, notif)
+            checkNotif(temp, temp_humid, notif, date.today())
 
 
-def checkNotif (temp, humid, notif):
+def checkNotif (temp, humid, notif, day):
     if notif != date.today().strftime("%d/%m/%Y"):
             sendNotif(temp, temp_humid)
-            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"))
+            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"), date.today())
     else : 
             logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"))
 
