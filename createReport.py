@@ -24,7 +24,7 @@ class getConfigData:
         return min_humid
 
 class tempCompare:
-    def __init__(self, max_temp, min_temp, max_humid,min_humid):
+    def __init__(self, max_temp, min_temp, max_humid, min_humid):
         self.max_temp_breach = False
         self.min_temp_breach = False
         self.max_humid_breach = False
@@ -61,7 +61,7 @@ class tempCompare:
                 if(humid < self.c_min_humid):
                     self.c_min_humid = humid
 
-    def getResult(self, date):
+    def getResult(self):
         aboveTemp = self.c_max_temp - self.max_temp
         belowTemp = self.c_min_temp - self.min_temp
         aboveHumid = self.c_max_humid - self.max_humid
@@ -78,7 +78,7 @@ class tempCompare:
             resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(belowTemp, belowHumid, aboveHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == True and self.max_humid_breach == False):
             resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity".format(belowTemp, belowHumid)
-        if(selfmin_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == False and self.max_humid_breach == True):
+        if(self.min_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == False and self.max_humid_breach == True):
             resultString = "BAD: {}*C below minimum temperature and {} %% above maximum humidity".format(belowTemp, aboveHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == False and self.max_humid_breach == False):
             resultString = "BAD: {}*C below minimum temperature".format(belowTemp)
@@ -114,11 +114,10 @@ class tempCompare:
 
 
 def getdata(conn, getConfigData):
-    createFile()
     curs = conn.cursor()
     rows = curs.execute("SELECT * FROM TEMP_HUMID_data ORDER BY timestamp").fetchall()
     checkDate = None
-    tempComp = tempCompare(getConfigData.getMaxT(), getConfigData.getMinT, getConfigData.getMaxH, getConfigData.getMinH) 
+    tempComp = tempCompare(getConfigData.getMaxT(), getConfigData.getMinT(), getConfigData.getMaxH(), getConfigData.getMinH()) 
     for row in rows:
         if checkDate == None:
             checkDate = row[4] 
@@ -141,20 +140,16 @@ def getdata(conn, getConfigData):
                 
 def addToCSV(breachMessage, date):
     with open('report.csv', 'a') as csvfile:
-        filewriter = csv.writer(csvfile)
+        filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         filewriter.writerows([date, breachMessage])
         
-def createFile():
-    with open('report.csv', 'wb') as myfile:
-
 
 
 
 
 def main():
-    conn = sqlite3.connect('THs.db')
+    conn = sqlite3.connect('THS.db')
     getdata(conn, getConfigData())  
-
 
 
 main()
