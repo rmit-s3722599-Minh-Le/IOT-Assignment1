@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sqlite3
 import requests
 import json
@@ -60,9 +61,38 @@ class tempCompare:
                 if(humid < self.c_min_humid):
                     self.c_min_humid = humid
 
-    def getResult(self):
+    def getResult(self, date):
+        resultString = ""
+        aboveTemp = self.c_max_temp - self.max_temp
+        belowTemp = self.c_min_temp - self.min_temp
+        aboveHumid = self.c_max_humid - self.max_humid
+        belowHumid = self.c_min_humid - self.min_humid 
+        if(max_temp_breach = True and min_temp_breach = True and max_humid_breach = True and min_humid_breach = True):
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% above maximum humidity and {} %% below maximum humidity".format(belowTemp, aboveTemp, belowHumid, aboveHumid)
+        if(max_temp_breach = True and min_temp_breach = True and max_humid_breach = True and min_humid_breach = False):
+
+        if(max_temp_breach = True and min_temp_breach = True and max_humid_breach = False and min_humid_breach = True):
+
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = True):
+
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
         
-    
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = True and min_humid_breach = True):
+        
+        if(max_temp_breach = False and min_temp_breach = True and max_humid_breach = False and min_humid_breach = True):
+        
+        if(max_temp_breach = False and min_temp_breach = True and max_humid_breach = True and min_humid_breach = False):
+
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
+
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
+
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
+
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
+
+        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
+        
     def reset(self):
         self.max_temp_breach = False
         self.min_temp_breach = False
@@ -76,6 +106,7 @@ class tempCompare:
 
 
 def getdata(conn, getConfigData):
+    createFile()
     curs = conn.cursor()
     rows = curs.execute("SELECT * FROM TEMP_HUMID_data ORDER BY timestamp").fetchall()
     checkDate = None
@@ -88,21 +119,25 @@ def getdata(conn, getConfigData):
                 tempComp.compareTemp(row[1])
                 tempComp.compareHumid(row[2])
             else:
-                tempComp.getResult()
+                addToCSV(tempComp.getResult(), checkDate)
+                checkDate = row[4]
                 tempComp.reset()
                 tempComp.compareTemp(row[1])
                 tempComp.compareHumid(row[2])
                         
-               
+    conn.commit()
+    conn.close()          
  
 
 
                 
-def addToCSV():
-    with open('report.csv', 'wb') as csvfile:
+def addToCSV(breachMessage, date):
+    with open('report.csv', 'a') as csvfile:
         filewriter = csv.writer(csvfile)
+        filewriter.writerows([date, breachMessage])
         
-
+def createFile():
+    with open('report.csv', 'wb') as myfile:
 
 
 

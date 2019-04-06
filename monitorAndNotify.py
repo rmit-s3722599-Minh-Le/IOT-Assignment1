@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 #imports
 import json
 from sense_hat import SenseHat
@@ -9,8 +9,12 @@ import sqlite3
 import sys
 from datetime import date
 from datetime import timedelta
-
+import logging
 import os
+
+
+
+logging.basicConfig(filename = 'test.log', level=logging.DEBUG)
 
 #readfile
 with open('config.json', 'r') as myfile:
@@ -45,11 +49,13 @@ conn = sqlite3.connect(dbName)
 
 with conn: 
     cur = conn.cursor() 
-    cur.execute("CREATE TABLE IF NOT EXISTS TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC, humid NUMERIC, notif DATETIME, day DATETIME)")
+    cur.execute("CREATE TABLE IF NOT EXISTS TEMP_HUMID_data(timestamp DATETIME, temp NUMERIC, humid NUMERIC, notif DATETIME, date DATETIME)")
+    logging.debug("table has been created")
 
-ACCESS_TOKEN="o.90FuRwpaeFwBa2NaRKfshwjFhbi98emW"
+
 
 def send_notification_via_pushbullet(title, body):
+    ACCESS_TOKEN="o.90FuRwpaeFwBa2NaRKfshwjFhbi98emW"
     """ Sending notification via pushbullet.
         Args:
             title (str) : title of text.
@@ -67,11 +73,13 @@ def send_notification_via_pushbullet(title, body):
 
 
 
-def logData (temp, humid, notif, day):	
+def logData (temp, humid, notif1, day):	
     curs=conn.cursor()
-    curs.execute("INSERT INTO TEMP_HUMID_data values(datetime('now'), (?), (?), (?), (?))", (temp,humid,notif,day))
+    curs.execute("INSERT INTO TEMP_HUMID_data values((?), (?), (?), (?), (?))", (datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),temp,humid,notif1,day))
+    # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,humid,notif1,day))
     conn.commit()
     conn.close()
+
 def getNotif ():
     curs= conn.cursor()
     result = curs.execute("SELECT * FROM TEMP_HUMID_data ORDER BY timestamp DESC LIMIT 1").fetchone()
@@ -79,7 +87,7 @@ def getNotif ():
         pNotif = result[3]
     except:
         pNotif = date.today() - timedelta(days=1)
-        
+    logging.debug("notif: {}".format(pNotif))    
     return pNotif
 
 
@@ -87,26 +95,32 @@ def getNotif ():
 
 def blah():
     notif = getNotif()
-    report = getReport()
     if temp > min_temp and temp < max_temp : 
         if temp_humid > min_humid and temp_humid < max_humid :
             logData(temp, temp_humid, notif, date.today())
+            # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,temp_humid,notif, date.today())
         else :
-            checkNotif(temp, temp_humid, notif, date.today())
+            checkNotif(temp, temp_humid, notif, date.today().strftime("%d/%m/%Y"))
+            # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,temp_humid,notif))
     else :
         if temp_humid > min_humid and temp_humid < max_humid:
-            checkNotif(temp, temp_humid, notif, date.today())
+            checkNotif(temp, temp_humid, notif, date.today().strftime("%d/%m/%Y"))
+            # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,temp_humid,notif))
 
         else :
-            checkNotif(temp, temp_humid, notif, date.today())
+            checkNotif(temp, temp_humid, notif, date.today().strftime("%d/%m/%Y"))
+            # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,temp_humid,notif))
 
 
 def checkNotif (temp, humid, notif, day):
+    logging.debug(date.today().strftime("%d/%m/%Y"))
     if notif != date.today().strftime("%d/%m/%Y"):
             sendNotif(temp, temp_humid)
-            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"), date.today())
+            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"), day)
+            # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,humid,notif))
     else : 
-            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"))
+            logData(temp, temp_humid, date.today().strftime("%d/%m/%Y"), day)
+            # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,humid,notif))
 
 
 
@@ -124,6 +138,7 @@ def sendNotif(temp, temp_humid):
     # if(temp_humid > max_humid or temp_humid < min_humid):
     #     send_notification_via_pushbullet("Humidity has exceeded", temp_humid + "Degrees Celcius")
     if(temp_humid > max_humid or temp < min_humid or temp_humid > max_humid or temp_humid < min_humid):
+        logging.debug("tnotifsent")
         send_notification_via_pushbullet("Alert", "temp:" + str(temp) + " and humid: " + str(temp_humid) + str(getNotif()) )       
 
 #main function
