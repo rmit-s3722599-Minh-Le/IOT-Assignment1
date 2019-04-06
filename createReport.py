@@ -67,32 +67,39 @@ class tempCompare:
         belowTemp = self.c_min_temp - self.min_temp
         aboveHumid = self.c_max_humid - self.max_humid
         belowHumid = self.c_min_humid - self.min_humid 
-        if(max_temp_breach = True and min_temp_breach = True and max_humid_breach = True and min_humid_breach = True):
-            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% above maximum humidity and {} %% below maximum humidity".format(belowTemp, aboveTemp, belowHumid, aboveHumid)
-        if(max_temp_breach = True and min_temp_breach = True and max_humid_breach = True and min_humid_breach = False):
-
-        if(max_temp_breach = True and min_temp_breach = True and max_humid_breach = False and min_humid_breach = True):
-
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = True):
-
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
-        
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = True and min_humid_breach = True):
-        
-        if(max_temp_breach = False and min_temp_breach = True and max_humid_breach = False and min_humid_breach = True):
-        
-        if(max_temp_breach = False and min_temp_breach = True and max_humid_breach = True and min_humid_breach = False):
-
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
-
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
-
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
-
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
-
-        if(max_temp_breach = False and min_temp_breach = False and max_humid_breach = False and min_humid_breach = False):
-        
+        if(min_temp_breach = True and max_temp_breach = True and min_humid_breach = True and max_humid_breach = True):
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(belowTemp, aboveTemp, belowHumid, aboveHumid)
+        if(min_temp_breach = True and max_temp_breach = True and min_humid_breach = True and max_humid_breach = False):
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% below minimun humidity".format(belowTemp, aboveTemp, belowHumid)
+        if(min_temp_breach = True and max_temp_breach = True and min_humid_breach = False and max_humid_breach = True):
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% above maximum humidity".format(belowTemp, aboveTemp, aboveHumid)
+        if(min_temp_breach = True and max_temp_breach = True and min_humid_breach = False and max_humid_breach = False):
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature".format(belowTemp, aboveTemp)
+        if(min_temp_breach = True and max_temp_breach = False and min_humid_breach = True and max_humid_breach = True):
+            resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(belowTemp, belowHumid, aboveHumid)
+        if(min_temp_breach = True and max_temp_breach = False and min_humid_breach = True and max_humid_breach = False):
+            resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity".format(belowTemp, belowHumid)
+        if(min_temp_breach = True and max_temp_breach = False and min_humid_breach = False and max_humid_breach = True):
+            resultString = "BAD: {}*C below minimum temperature and {} %% above maximum humidity".format(belowTemp, aboveHumid)
+        if(min_temp_breach = True and max_temp_breach = False and min_humid_breach = False and max_humid_breach = False):
+            resultString = "BAD: {}*C below minimum temperature".format(belowTemp)
+        if(min_temp_breach = False and max_temp_breach = True and min_humid_breach = True and max_humid_breach = True):
+            resultString = "BAD: {}*C above maximum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(aboveTemp, belowHumid, aboveHumid)
+        if(min_temp_breach = False and max_temp_breach = True and min_humid_breach = True and max_humid_breach = False):
+            resultString = "BAD: {}*C above maximum temperature and {} %% below minimum humidity".format(aboveTemp, belowHumid)
+        if(min_temp_breach = False and max_temp_breach = True and min_humid_breach = False and max_humid_breach = True):
+            resultString = "BAD: {}*C above maximum temperature and {} %% above maximum humidity".format(aboveTemp, aboveHumid)
+        if(min_temp_breach = False and max_temp_breach = True and min_humid_breach = False and max_humid_breach = False):
+            resultString = "BAD: {}*C above maximum temperature".format(aboveTemp)
+        if(min_temp_breach = False and max_temp_breach = False and min_humid_breach = True and max_humid_breach = True):
+            resultString = "BAD: {} %% below minimum humidity and {} %% above maximum humidity".format(belowHumid, aboveHumid)
+        if(min_temp_breach = False and max_temp_breach = False and min_humid_breach = True and max_humid_breach = False):
+            resultString = "BAD: {} %% below minimum humidity".format(belowHumid)
+        if(min_temp_breach = False and max_temp_breach = False and min_humid_breach = False and max_humid_breach = True):
+            resultString = "BAD: {} %% above maximum humidity".format(aboveHumid)
+        if(min_temp_breach = False and max_temp_breach = False and min_humid_breach = False and max_humid_breach = False):
+            resultString = "Ok"
+        return resultString
     def reset(self):
         self.max_temp_breach = False
         self.min_temp_breach = False
