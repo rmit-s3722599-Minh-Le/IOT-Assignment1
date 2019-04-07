@@ -6,10 +6,16 @@ import os
 import json
 from sense_hat import SenseHat
 import datetime
-from datetime import date
 import requests
+import logging
+
+
+
+logging.basicConfig(filename = 'gbttest.log', level=logging.DEBUG)
+
 
 class getConfigData:
+    print("data is imported from json")
     def __init__(self):
         with open('config.json', 'r') as myfile:
             self.data = myfile.read()
@@ -30,6 +36,7 @@ class getConfigData:
 
 class senseHatStuff:
     def __init__(self):
+        print("getting temperature")
         sense = SenseHat()
         sense.clear()
         self.temp = round(sense.get_temperature(),1)
@@ -67,24 +74,27 @@ class bullet:
             print('complete sending')
 
     def sendNotif(self):
+        print("sendNotif activated")
         if(self.temp>self.min_temp and self.temp<self.max_temp):
             if(self.temp_humid>self.min_humid and self.temp_humid<self.max_humid):
-                self.send_notification_via_pushbullet(date.now.strftime("%H"), ("temperature: {}, humidity: {}, no breaches.").format(self.temp, self.temp_humid))
+                self.send_notification_via_pushbullet(datetime.datetime.now().strftime("%H"), ("temperature: {}, humidity: {}, no breaches.").format(self.temp, self.temp_humid))
             else:
-                self.send_notification_via_pushbullet(date.now.strftime("%H"), ("temperature: {}, humidity: {}, there is a breach in humidity.").format(self.temp, self.temp_humid))
+                self.send_notification_via_pushbullet(datetime.datetime.now().strftime("%H"), ("temperature: {}, humidity: {}, there is a breach in humidity.").format(self.temp, self.temp_humid))
         else:
             if(self.temp_humid>self.min_humid and self.temp_humid<self.max_humid):
-                self.send_notification_via_pushbullet(date.now.strftime("%H"), ("temperature: {}, humidity: {}, there is a breach in temperature.").format(self.temp, self.temp_humid))
+                self.send_notification_via_pushbullet(datetime.datetime.now().strftime("%H"), ("temperature: {}, humidity: {}, there is a breach in temperature.").format(self.temp, self.temp_humid))
             else:
-                self.send_notification_via_pushbullet(date.now.strftime("%H"), ("temperature: {}, humidity: {}, there is a breach in temperature and in humidity.").format(self.temp, self.temp_humid))
+                self.send_notification_via_pushbullet(datetime.datetime.now().strftime("%H"), ("temperature: {}, humidity: {}, there is a breach in temperature and in humidity.").format(self.temp, self.temp_humid))
+            logging.debug("notif is sent")
     
 
 
 def getPairedDevices():
     p = sp.Popen(["bt-device", "--list"], stdin = sp.PIPE, stdout = sp.PIPE, close_fds = True)
     (stdout, stdin) = (p.stdout, p.stdin)
-
     datas = stdout.readlines()
+    print("getting paired devices")
+    logging.debug("the data: {}".format(datas))
     return datas
 
 class timer:
@@ -95,11 +105,11 @@ class timer:
     
     def stamp(self):
         if (self.timimg == False):
-            self.notifTime = date.now.strftime("%H") 
+            self.notifTime = datetime.datetime.now().strftime("%H") 
             self.timimg = True
 
     def newFrame(self):
-        if(self.notifTime == date.now.strftime("%H") ):
+        if(self.notifTime == datetime.datetime.now().strftime("%H") ):
             self.timimg = False
             self.clearList()
 
@@ -119,20 +129,27 @@ def scanning(timer):
     senseHatS = senseHatStuff()
     bull = bullet(gCD,senseHatS)
     #scanning
+    print("scanning devices..")
+    logging.debug("scanning nearby devices")
     nearbyDevices = bluetooth.discover_devices()
-
+    print("starting scan")
     for macAddress in nearbyDevices:
+        logging.debug("macAdress of a device:{}".format(macAddress.decode('ascii')))
+        logging.debug("macAdress of a device:")
+        logging.debug(macAddress)
+        print("pair devices sart")
         for data in getPairedDevices():
-                s_data = data.decode('ascii')
-                istart = s_data.rfind('(')
-                iend = s_data.rfind(')')
-                pairedDeviceAddress = s_data[istart + 1,iend - 1]
+            logging.debug("macAdress of a device:{}, paired device: {}".format(macAddress.decode('ascii'), data))
+            s_data = data.decode('ascii')
+            istart = s_data.rfind('(')
+            iend = s_data.rfind(')')
+            pairedDeviceAddress = s_data[istart + 1,iend - 1]
 
-                if(pairedDeviceAddress == macAddress):
-                    if pairedDeviceAddress not in timer.getList():
-                        timer.addtoList(pairedDeviceAddress)
-                        bull.sendNotif()
-                        timer.stamp()
+            if(pairedDeviceAddress == macAddress.decode('ascii')):
+                if pairedDeviceAddress not in timer.getList():
+                    timer.addtoList(pairedDeviceAddress)
+                    bull.sendNotif()
+                    timer.stamp()
     timer.newFrame()
     time.sleep(10)
 
@@ -149,6 +166,9 @@ def scanning(timer):
 
 
 def main():
+    logging.debug("the date00: {}".format(datetime.datetime.now().strftime("%H")))
+    logging.debug("the date 01: {}".format(datetime.datetime.now()))
+    logging.debug("starting python bluetooth file")
     compareTime = timer()
     while True:
         scanning(compareTime)

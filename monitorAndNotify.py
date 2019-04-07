@@ -4,7 +4,6 @@ import json
 from sense_hat import SenseHat
 import datetime
 import requests
-import json
 import sqlite3
 import sys
 from datetime import date
@@ -123,7 +122,7 @@ class dataBase():
     def checkNotif (self, temp, humid, notif, day):
         logging.debug(date.today().strftime("%d/%m/%Y"))
         if notif != date.today().strftime("%d/%m/%Y"):
-            (self.notification).sendNotif(temp, self.temp_humid, self.min_humid, self.max_humid, self.getNotif())
+            (self.notification).sendNotif(temp, self.temp_humid, self.min_humid, self.max_humid, self.min_temp, self.max_temp, self.getNotif())
             self.logData(temp, self.temp_humid, date.today().strftime("%d/%m/%Y"), day)
             # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,humid,notif))
         else : 
@@ -132,8 +131,8 @@ class dataBase():
     
     def blah(self):
         self.notif = self.getNotif()
-        if self.temp > self.min_temp and self.temp < self.max_temp : 
-            if self.temp_humid > self.min_humid and self.temp_humid < self.max_humid :
+        if self.temp >= self.min_temp and self.temp <= self.max_temp : 
+            if self.temp_humid >= self.min_humid and self.temp_humid <= self.max_humid :
                 self.logData(self.temp, self.temp_humid, self.notif, date.today().strftime("%d/%m/%Y"))
                 # logging.debug("temp: {}, humid: {}, notif: {}".format(temp,temp_humid,notif, date.today())
             else :
@@ -172,12 +171,12 @@ class notification:
             print('complete sending')
     
 
-    def sendNotif(self, temp, temp_humid, min_humid, max_humid, getNotif):
+    def sendNotif(self, temp, temp_humid, min_humid, max_humid, max_temp, min_temp, getNotif):
         # if(temp > max_temp or temp < min_temp):
         #     send_notification_via_pushbullet("Temperature has exceeded", temp + "Degrees Celcius")
         # if(temp_humid > max_humid or temp_humid < min_humid):
         #     send_notification_via_pushbullet("Humidity has exceeded", temp_humid + "Degrees Celcius")
-        if(temp_humid > max_humid or temp < min_humid or temp_humid > max_humid or temp_humid < min_humid):
+        if(temp > max_temp or temp < min_temp or temp_humid > max_humid or temp_humid < min_humid):
             logging.debug("tnotifsent")
             self.send_notification_via_pushbullet("Alert", "temp:" + str(temp) + " and humid: " + str(temp_humid) + str(getNotif) )     
 
