@@ -1,0 +1,13 @@
+We used two different Python Data Visualisation Libraries, Matplotlibrary and Seaborn, we chose these over others because,
+Matplotlibrary has easily executable histogram charts, and Seaborn uses Matplotlibrary and simplies it and 
+has more Visualisation types such as box plots which we decided on using.
+While using these two we have decided on 2 graphs to show our data, one for the temperature and one for the humidity.
+Since they both have different types of data (temperature in degrees and humidity in percentage) we decided to write a graph for 
+each. in the temperature graph we decided to use a histogram plot to show the pattern of the temperature to help us analyze the 
+data in a simpler way. for the humidity we chose to use boxplot as it shows the pattern of the humidity as well, but unlike the
+histogram it also shows the mean as well as the range of the humidity and there for covering the percentage that is within the 
+humidity range and also shows if there is any abnormalities outside the range. 
+
+after using both Matplotlibrary and Seaborn they are pretty similar since Seaborn uses Matplotlibrary as its base and adds
+simplification and more Visualisation plots on top of it. The difference between the two is that Seaborn uses less code and
+easier to generate the plots. Seaborn also has more plots on it as said earlier there for giving you more options.

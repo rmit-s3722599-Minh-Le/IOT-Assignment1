@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
+#imports
 import sqlite3
 import requests
 import json
 import csv
+
+# gets the data from the config.json file
+
 
 class getConfigData:
     def __init__(self):
@@ -13,15 +17,21 @@ class getConfigData:
     def getMaxT(self):
         max_temp = self.rangesData['max_temp']
         return max_temp
+
     def getMinT(self):
         min_temp = self.rangesData['min_temp']
         return min_temp
+
     def getMaxH(self):
         max_humid = self.rangesData['max_humid']
         return max_humid
+
     def getMinH(self):
         min_humid = self.rangesData['min_humid']
         return min_humid
+
+# compares the temperature and humidity
+
 
 class tempCompare:
     def __init__(self, max_temp, min_temp, max_humid, min_humid):
@@ -29,7 +39,6 @@ class tempCompare:
         self.min_temp_breach = False
         self.max_humid_breach = False
         self.min_humid_breach = False
-
         self.c_max_temp = 0
         self.c_min_temp = 100
         self.c_max_humid = 0
@@ -38,6 +47,7 @@ class tempCompare:
         self.min_temp = min_temp
         self.max_humid = max_humid
         self.min_humid = min_humid
+# compares the temp
 
     def compareTemp(self, temp):
         if(temp > self.max_temp):
@@ -49,7 +59,8 @@ class tempCompare:
                 self.min_temp_breach = True
                 if(temp < self.c_min_temp):
                     self.c_min_temp = temp
-            
+# compares the humid
+
     def compareHumid(self, humid):
         if(humid > self.max_humid):
             self.max_humid_breach = True
@@ -60,47 +71,63 @@ class tempCompare:
                 self.min_humid_breach = True
                 if(humid < self.c_min_humid):
                     self.c_min_humid = humid
+# uses the temp and humid, find the breaches (if they're are) to return the right string
 
     def getResult(self):
         aboveTemp = self.c_max_temp - self.max_temp
         belowTemp = self.c_min_temp - self.min_temp
         aboveHumid = self.c_max_humid - self.max_humid
-        belowHumid = self.c_min_humid - self.min_humid 
-        if(self.min_temp_breach == True and self.max_temp_breach == True and self.min_humid_breach == True and self.max_humid_breach == True): 
-            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(belowTemp, aboveTemp, belowHumid, aboveHumid)
+        belowHumid = self.c_min_humid - self.min_humid
+        if(self.min_temp_breach == True and self.max_temp_breach == True and self.min_humid_breach == True and self.max_humid_breach == True):
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(
+                belowTemp, aboveTemp, belowHumid, aboveHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == True and self.min_humid_breach == True and self.max_humid_breach == False):
-            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% below minimun humidity".format(belowTemp, aboveTemp, belowHumid)
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% below minimun humidity".format(
+                belowTemp, aboveTemp, belowHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == True and self.min_humid_breach == False and self.max_humid_breach == True):
-            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% above maximum humidity".format(belowTemp, aboveTemp, aboveHumid)
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature and {} %% above maximum humidity".format(
+                belowTemp, aboveTemp, aboveHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == True and self.min_humid_breach == False and self.max_humid_breach == False):
-            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature".format(belowTemp, aboveTemp)
+            resultString = "BAD: {}*C below minimum temperature and {}*C above maximum temperature".format(
+                belowTemp, aboveTemp)
         if(self.min_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == True and self.max_humid_breach == True):
-            resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(belowTemp, belowHumid, aboveHumid)
+            resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(
+                belowTemp, belowHumid, aboveHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == True and self.max_humid_breach == False):
-            resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity".format(belowTemp, belowHumid)
+            resultString = "BAD: {}*C below minimum temperature and {} %% below minimum humidity".format(
+                belowTemp, belowHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == False and self.max_humid_breach == True):
-            resultString = "BAD: {}*C below minimum temperature and {} %% above maximum humidity".format(belowTemp, aboveHumid)
+            resultString = "BAD: {}*C below minimum temperature and {} %% above maximum humidity".format(
+                belowTemp, aboveHumid)
         if(self.min_temp_breach == True and self.max_temp_breach == False and self.min_humid_breach == False and self.max_humid_breach == False):
-            resultString = "BAD: {}*C below minimum temperature".format(belowTemp)
+            resultString = "BAD: {}*C below minimum temperature".format(
+                belowTemp)
         if(self.min_temp_breach == False and self.max_temp_breach == True and self.min_humid_breach == True and self.max_humid_breach == True):
-            resultString = "BAD: {}*C above maximum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(aboveTemp, belowHumid, aboveHumid)
+            resultString = "BAD: {}*C above maximum temperature and {} %% below minimum humidity and {} %% above maximum humidity".format(
+                aboveTemp, belowHumid, aboveHumid)
         if(self.min_temp_breach == False and self.max_temp_breach == True and self.min_humid_breach == True and self.max_humid_breach == False):
-            resultString = "BAD: {}*C above maximum temperature and {} %% below minimum humidity".format(aboveTemp, belowHumid)
+            resultString = "BAD: {}*C above maximum temperature and {} %% below minimum humidity".format(
+                aboveTemp, belowHumid)
         if(self.min_temp_breach == False and self.max_temp_breach == True and self.min_humid_breach == False and self.max_humid_breach == True):
-            resultString = "BAD: {}*C above maximum temperature and {} %% above maximum humidity".format(aboveTemp, aboveHumid)
+            resultString = "BAD: {}*C above maximum temperature and {} %% above maximum humidity".format(
+                aboveTemp, aboveHumid)
         if(self.min_temp_breach == False and self.max_temp_breach == True and self.min_humid_breach == False and self.max_humid_breach == False):
-            resultString = "BAD: {}*C above maximum temperature".format(aboveTemp)
+            resultString = "BAD: {}*C above maximum temperature".format(
+                aboveTemp)
         if(self.min_temp_breach == False and self.max_temp_breach == False and self.min_humid_breach == True and self.max_humid_breach == True):
-            resultString = "BAD: {} %% below minimum humidity and {} %% above maximum humidity".format(belowHumid, aboveHumid)
+            resultString = "BAD: {} %% below minimum humidity and {} %% above maximum humidity".format(
+                belowHumid, aboveHumid)
         if(self.min_temp_breach == False and self.max_temp_breach == False and self.min_humid_breach == True and self.max_humid_breach == False):
-            resultString = "BAD: {} %% below minimum humidity".format(belowHumid)
+            resultString = "BAD: {} %% below minimum humidity".format(
+                belowHumid)
         if(self.min_temp_breach == False and self.max_temp_breach == False and self.min_humid_breach == False and self.max_humid_breach == True):
-            resultString = "BAD: {} %% above maximum humidity".format(aboveHumid)
+            resultString = "BAD: {} %% above maximum humidity".format(
+                aboveHumid)
         if(self.min_temp_breach == False and self.max_temp_breach == False and self.min_humid_breach == False and self.max_humid_breach == False):
             resultString = "OK"
         return resultString
 
-
+# resets the protocols, security is back on!
     def reset(self):
         self.max_temp_breach = False
         self.min_temp_breach = False
@@ -111,16 +138,20 @@ class tempCompare:
         self.c_max_humid = 0
         self.c_min_humid = 100
 
+# getting the data from the database
 
 
 def getdata(conn, getConfigData):
+    createCSV()
     curs = conn.cursor()
-    rows = curs.execute("SELECT * FROM TEMP_HUMID_data ORDER BY timestamp").fetchall()
+    rows = curs.execute(
+        "SELECT * FROM TEMP_HUMID_data ORDER BY timestamp").fetchall()
     checkDate = None
-    tempComp = tempCompare(getConfigData.getMaxT(), getConfigData.getMinT(), getConfigData.getMaxH(), getConfigData.getMinH()) 
+    tempComp = tempCompare(getConfigData.getMaxT(), getConfigData.getMinT(
+    ), getConfigData.getMaxH(), getConfigData.getMinH())
     for row in rows:
         if checkDate == None:
-            checkDate = row[4] 
+            checkDate = row[4]
         else:
             if checkDate == row[4]:
                 tempComp.compareTemp(row[1])
@@ -131,28 +162,35 @@ def getdata(conn, getConfigData):
                 tempComp.reset()
                 tempComp.compareTemp(row[1])
                 tempComp.compareHumid(row[2])
-                        
+
     conn.commit()
-    conn.close()          
- 
+    conn.close()
+
+# creates the csv file
 
 
-                
+def createCSV():
+    with open('report.csv', 'w') as csvfile:
+        filewriter = csv.writer(csvfile, delimiter=',',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        filewriter.writerow(['Date', 'Breach methods'])
+
+# adds info to the csv file
+
+
 def addToCSV(breachMessage, date):
     with open('report.csv', 'a') as csvfile:
-        filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        filewriter.writerows([date, breachMessage])
-        
+        filewriter = csv.writer(csvfile, delimiter=',',
+                                quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        filewriter.writerow([date, breachMessage])
 
-
+# main function
 
 
 def main():
     conn = sqlite3.connect('THS.db')
-    getdata(conn, getConfigData())  
+    getdata(conn, getConfigData())
 
 
+# execute
 main()
-
-
-
