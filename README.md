@@ -2,7 +2,7 @@
 
 
 # config.json
-use to allocate min and max temp and humitdity
+Use to allocate min and max temp and humitdity
 
 # monitorAndNotify.py
 Get the current Temp and Humidity and trigger a warning if those go out of bounds of the max and min temp and humidity allocated. Can be run in the background with a CronJob. The current temp and humidity is logged in as a table via sqlite.
